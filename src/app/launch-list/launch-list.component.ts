@@ -1,4 +1,6 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { map } from 'rxjs/operators';
+import { PastLaunchesListGQL } from '../services/spacexGraphql.service';
 
 @Component({
   selector: 'app-launch-list',
@@ -6,11 +8,12 @@ import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
   styleUrls: ['./launch-list.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class LaunchListComponent implements OnInit {
+export class LaunchListComponent {
+  constructor(private readonly pastLaunchesService: PastLaunchesListGQL) { }
 
-  constructor() { }
-
-  ngOnInit() {
-  }
-
+  // Please be careful to not fetch too much, but this amount lets us see lazy loading images in action
+  pastLaunches$ = this.pastLaunchesService
+    .fetch({ limit: 30 })
+    // Here we extract our query data, we can also get info like errors or loading state from res
+    .pipe(map((res) => res.data.launchesPast));
 }
